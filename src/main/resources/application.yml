@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: resilience
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      resilienceServiceCB:
+        slidingWindowSize: 5
+        slidingWindowType: time_based
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 2
+        waitDurationInOpenState: 30s
+        registerHealthIndicator: true
+
+  retry:
+    instances:
+      resilienceServiceCB:
+        maxAttempts: 3
+        waitDuration: 1s
+
+  timelimiter:
+    instances:
+      resilienceServiceCB:
+        timeoutDuration: 1s
+
+  ratelimiter:
+    instances:
+      resilienceServiceCB:
+        subscribeForEvents: true
+        limitForPeriod: 1
+        limitRefreshPeriod: 10s
+        timeoutDuration: 0
+        eventConsumerBufferSize: 100
+
+  bulkhead:
+    instances:
+      resilienceServiceCB:
+        maxConcurrentCalls: 3
+        maxWaitDuration: 1
+        eventConsumerBufferSize: 100
+
+logging:
+  level:
+    io.github.resilience4j: DEBUG
+    io.github.resilience4j.bulkhead: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, circuitbreakerevents, ratelimiterevents, timelimiterevents, metrics, bulkheadevents, retryevents
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
